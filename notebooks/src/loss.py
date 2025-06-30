@@ -12,8 +12,11 @@ class LengthWeightedBCELoss(nn.Module):
         self.base_loss = nn.BCEWithLogitsLoss(reduction='none')
 
     def forward(self, predictions, targets, lengths):
+        # bringing base loss
         base_loss = self.base_loss(predictions, targets)
+        # normalizing size-based weights
         weights = lengths / lengths.max()
+        # incorporating the normalized weights into loss terms
         weighted_loss = base_loss * weights
         return weighted_loss.mean()
 
