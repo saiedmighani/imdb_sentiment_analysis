@@ -29,6 +29,10 @@ The project structure is organized into training (notebooks) and service build d
 |service/
 |__ Dockerfile
 |__ requirements.txt
+|__ app.py
+|__ assets/
+|____ model.py
+|____ best_model.py
 |README.md
 ```
 
@@ -79,8 +83,26 @@ Below shows the results from the vanilla loss function:
 
 - Since the loss values for both customized and vanilla loss training loops still have not hit plateau, it is too early to call judgement on which loss function is more effective. This needs further investigation with longer training times.
 ### Service Instructions
+In this section, we set up a fastapi server service, that clients can integrate with (inlcuding web clients) for their sentiment analysis.
+#### Step 1:
+```bash
+> cd service\
+> docker build -t sentiment-api .
+```
+#### Step 2:
+```bash
+> docker run -p 8080:8080 sentiment-api
+```
+#### Step 3:
+Call the service:
+```bash
+> Invoke-RestMethod -Uri "http://localhost:8080/predict" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"text": "This movie was fantastic!"}'
 
+```
+Result:
+![img.png](img.png)
 ### Potential Improvements
 
-- We used a vanilla tranformer model as a started model architecture, in the future, we can bring more customized models, a recent published [model architecture](https://www.nature.com/articles/s41598-025-01834-1) showed promising reuslts
-
+- We used a vanilla transformer model as a started model architecture, in the future, we can bring more customized models, a recent published [model architecture](https://www.nature.com/articles/s41598-025-01834-1) showed promising reuslts
+- Make the training instance versioning, and service deployments more automated, for proper CICD.
+- storing and loading the trained torch model using ONNX runtime (+gpu accelerations)
