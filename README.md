@@ -15,7 +15,7 @@ The project structure is organized into training (notebooks) and service build d
 |__ requirements.txt
 |__ P01_dataset_EDA.ipynb
 |__ P02_model_train_LengthWeightedBCELoss.ipynb
-|__ P03_model_train_vanillaBCELoss.ipynb
+|__ P03_model_train_vanillaLoss.ipynb
 |__ assets/
 |__ src/
 |____ dataset.py/
@@ -51,11 +51,6 @@ Instance can now be accessed via:
 ```
 * The training notebooks and helper functions are written in a modular way, so they can be easily refactored into building custom training ECR images, to be used by sagemaker estimator module.
 
-### Model performance
-Using the custom loss function, below shows the progress of model metrics during training loop
-<div style="text-align:center"><img src="./notebooks/assets/metrics_custom_loss.png" /></div>
-
-
 ### Custom loss
 
 ```bash
@@ -74,8 +69,15 @@ class LengthWeightedBCELoss(nn.Module):
         return weighted_loss.mean()
 ```
 
-### Vanilla loss results
+### Model performance
+Using the custom loss function, below shows the progress of model metrics during training loop
+<div style="text-align:center"><img src="./notebooks/assets/metrics_custom_loss.png" /></div>
 
+### Vanilla loss results
+Below shows the results from the vanilla loss function:
+<div style="text-align:center"><img src="./notebooks/assets/metrics_vanilla_loss.png" /></div>
+
+- Since the loss values for both customized and vanilla loss training loops still have not hit plateau, it is too early to call judgement on which loss function is more effective. This needs further investigation with longer training times.
 ### Service Instructions
 
 ### Potential Improvements
