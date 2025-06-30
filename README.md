@@ -32,7 +32,7 @@ The project structure is organized into training (notebooks) and service build d
 |__ app.py
 |__ assets/
 |____ model.py
-|____ best_model.py
+|____ best_model.pt
 |README.md
 ```
 
@@ -41,7 +41,7 @@ The project structure is organized into training (notebooks) and service build d
 Instructions for building jupyter lab space with docker build, and with GPU support (using Windows Machine):
 #### Step 1:
 ```bash
-> cd notebook\
+> cd notebooks\
 > docker build -t torch-jupyterlab .
 ```
 #### Step 2:
@@ -57,6 +57,8 @@ Instance can now be accessed via:
 
 ### Custom loss
 
+The custom loss function adds a weighing term to the vanilla binary cross-entropy loss terms, which gives higher weights to longer reviews:
+
 ```bash
 class LengthWeightedBCELoss(nn.Module):
     """
@@ -67,8 +69,11 @@ class LengthWeightedBCELoss(nn.Module):
         self.base_loss = nn.BCEWithLogitsLoss(reduction='none')
 
     def forward(self, predictions, targets, lengths):
+        # bringing base loss
         base_loss = self.base_loss(predictions, targets)
+        # normalizing size-based weights
         weights = lengths / lengths.max()
+        # incorporating the normalized weights into loss terms
         weighted_loss = base_loss * weights
         return weighted_loss.mean()
 ```
@@ -94,7 +99,7 @@ In this section, we set up a fastapi server service, that clients can integrate 
 > docker run -p 8080:8080 sentiment-api
 ```
 #### Step 3:
-Call the service:
+Call the service (Powershell cmd):
 ```bash
 > Invoke-RestMethod -Uri "http://localhost:8080/predict" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"text": "This movie was fantastic!"}'
 
@@ -103,6 +108,6 @@ Result:
 ![img.png](img.png)
 ### Potential Improvements
 
-- We used a vanilla transformer model as a started model architecture, in the future, we can bring more customized models, a recent published [model architecture](https://www.nature.com/articles/s41598-025-01834-1) showed promising reuslts
-- Make the training instance versioning, and service deployments more automated, for proper CICD.
-- storing and loading the trained torch model using ONNX runtime (+gpu accelerations)
+- We used a vanilla transformer model as a starter model architecture, in the future, we can bring more customized models; a recent published [model architecture](https://www.nature.com/articles/s41598-025-01834-1) showed promising results using LSTM model architecture.
+- Automating the trained model versioning, and service deployments, following MLOps CICD best practices.
+- Storing and loading the trained torch model using ONNX runtime for latency improvements (+gpu accelerations)
